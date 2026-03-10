@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Student-Led Workshop System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0 text-center">Create Account</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    {{ form.hidden_tag() }}
+                                
+                    <!-- Student Number -->
+                    <div class="mb-3">
+                        <label for="student_number" class="form-label">Student Number *</label>
+                        {{ form.student_number(class="form-control", required=True, minlength=5, maxlength=20) }}
+                        <div class="form-text">Your unique student identification number</div>
+                        {% if form.student_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.student_number.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                                
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address *</label>
+                        {{ form.email(class="form-control", required=True) }}
+                        <div class="form-text">We'll never share your email with anyone else.</div>
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                                
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full Name</label>
+                        {{ form.full_name(class="form-control") }}
+                    </div>
+                                
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password *</label>
+                        {{ form.password(class="form-control", required=True, minlength=6) }}
+                        <div class="form-text">Minimum 6 characters</div>
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                                
+                    <!-- Confirm Password -->
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password *</label>
+                        {{ form.confirm_password(class="form-control", required=True, minlength=6) }}
+                        {% if form.confirm_password.errors %}
+                            <div class="text-danger small mt-1">{{ form.confirm_password.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                                
+                    <!-- Role Selection -->
+                    <div class="mb-3">
+                        <label for="role" class="form-label">I want to register as:</label>
+                        {{ form.role(class="form-select") }}
+                        <div class="form-text">
+                            Hosts can create and manage workshops. Host accounts require admin approval.
+                        </div>
+                    </div>
+                                
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") if form.submit else '<button type="submit" class="btn btn-primary btn-lg">Register</button>'|safe }}
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

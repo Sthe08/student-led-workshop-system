@@ -1,0 +1,84 @@
+{% extends"base.html" %}
+
+{% block title %}My Workshops{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1><i class="fas fa-calendar-alt"></i> My Workshops</h1>
+    
+    <div class="row mt-4">
+        <!-- Organized Workshops -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> Workshops I'm Hosting</h3>
+                </div>
+                <div class="card-body">
+                    {% if organized_workshops %}
+                        <div class="list-group">
+                            {% for workshop in organized_workshops %}
+                                <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ workshop.title }}</h5>
+                                        <small>{{ workshop.date_time.strftime('%b %d, %Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
+                                    <small>
+                                        <span class="badge bg-info">{{ workshop.category }}</span>
+                                        <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
+                                            {{ workshop.status|title }}
+                                        </span>
+                                        <span class="ms-2">{{ workshop.registered_count }}/{{ workshop.capacity }} registered</span>
+                                    </small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">You haven't created any workshops yet.</p>
+                        {% if current_user.is_authenticated and current_user.is_host() %}
+                            <a href="{{ url_for('workshop.create_workshop') }}" class="btn btn-sm btn-primary mt-2">
+                                <i class="fas fa-plus-circle"></i> Create Your First Workshop
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Registered Workshops -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="fas fa-user-graduate"></i> Workshops I'm Attending</h3>
+                </div>
+                <div class="card-body">
+                    {% if registered_workshops %}
+                        <div class="list-group">
+                            {% for workshop in registered_workshops %}
+                                <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ workshop.title }}</h5>
+                                        <small>{{ workshop.date_time.strftime('%b %d, %Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
+                                    <small>
+                                        <span class="badge bg-info">{{ workshop.category }}</span>
+                                        <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
+                                            {{ workshop.status|title }}
+                                        </span>
+                                    </small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">You haven't registered for any workshops yet.</p>
+                        <a href="{{ url_for('workshop.list_workshops') }}" class="btn btn-sm btn-success mt-2">
+                            <i class="fas fa-search"></i> Browse Available Workshops
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

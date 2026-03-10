@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}About - Student-Led Workshop System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4">About the Student-Led Workshop System</h1>
+        
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h3>📚 What is this?</h3>
+                <p>
+                    The Student-Led Workshop System is a platform designed to facilitate peer-led learning 
+                    within our university community. It allows students to create, schedule, and participate 
+                    in workshops led by fellow students.
+                </p>
+                
+                <h3 class="mt-4">🎯 Key Features</h3>
+                <ul>
+                    <li><strong>Workshop Creation:</strong> Hosts can create and manage workshops on various topics</li>
+                    <li><strong>Easy Registration:</strong> Students can browse and register for upcoming workshops</li>
+                    <li><strong>Attendance Tracking:</strong> Automated attendance recording and history</li>
+                    <li><strong>Feedback System:</strong> Collect and provide feedback to improve workshop quality</li>
+                    <li><strong>Automated Reminders:</strong> Email and SMS reminders for registered workshops</li>
+                    <li><strong>Role-Based Access:</strong> Different permissions for students, hosts, and administrators</li>
+                </ul>
+                
+                <h3 class="mt-4">👥 User Roles</h3>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="card bg-primary text-white h-100">
+                            <div class="card-body">
+                                <h5>Students</h5>
+                                <p>Browse workshops, register to attend, track participation, and provide feedback.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-info text-white h-100">
+                            <div class="card-body">
+                                <h5>Hosts</h5>
+                                <p>Create workshops, manage registrations, mark attendance, and view feedback.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white h-100">
+                            <div class="card-body">
+                                <h5>Admins</h5>
+                                <p>Approve host requests, manage users, oversee all workshops, and generate reports.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="mt-4">💡 How It Works</h3>
+                <ol>
+                    <li><strong>Register:</strong> Create an account with your student number</li>
+                    <li><strong>Choose Your Path:</strong> Register as a student or apply to be a host</li>
+                    <li><strong>Get Involved:</strong> 
+                        <ul>
+                            <li>As a student: Browse and join workshops that interest you</li>
+                            <li>As a host: Create workshops and share your knowledge</li>
+                        </ul>
+                    </li>
+                    <li><strong>Participate:</strong> Attend workshops, learn, and grow together</li>
+                    <li><strong>Provide Feedback:</strong> Help improve the community by sharing your thoughts</li>
+                </ol>
+                
+                <h3 class="mt-4">🔒 Privacy & Security</h3>
+                <p>
+                    We take your privacy seriously. All personal information is stored securely and 
+                    used only for workshop management purposes. Passwords are encrypted, and access 
+                    is controlled through role-based permissions.
+                </p>
+                
+                <div class="alert alert-info mt-4">
+                    <strong>ℹ️ Note:</strong> This system is currently in development phase. 
+                    More features coming soon!
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Home</a>
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-success ms-2">Register Now</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

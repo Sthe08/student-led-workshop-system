@@ -1,0 +1,65 @@
+{% extends"base.html" %}
+
+{% block title %}All Workshops{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="fas fa-chalkboard-teacher"></i> Browse Workshops</h1>
+                {% if current_user.is_authenticated and current_user.is_host() %}
+                    <a href="{{ url_for('workshop.create_workshop') }}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Create Workshop
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Workshops List -->
+    <div class="row">
+        {% if workshops %}
+            {% for workshop in workshops %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <span class="badge bg-info">{{ workshop.category }}</span>
+                            <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
+                                {{ workshop.status|title }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ workshop.title }}</h5>
+                            <p class="card-text">{{ workshop.description[:100] }}{% if workshop.description|length > 100 %}...{% endif %}</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i> {{ workshop.date_time.strftime('%B %d, %Y at %I:%M %p') }}<br>
+                                    <i class="fas fa-map-marker-alt"></i> {{ workshop.venue }}<br>
+                                    <i class="fas fa-users"></i> {{ workshop.registered_count }}/{{ workshop.capacity }} registered
+                                </small>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="btn btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No workshops available yet. 
+                    {% if current_user.is_authenticated and current_user.is_host() %}
+                        <a href="{{ url_for('workshop.create_workshop') }}">Create the first one!</a>
+                    {% else %}
+                        Check back later for upcoming workshops.
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends"base.html" %}
+
+{% block title %}User Management - Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">👥 User Management</h2>
+        
+        <div class="alert alert-info">
+            <strong>ℹ️ Read-Only View:</strong> This page displays all registered users and their roles.
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3>{{ total_users }}</h3>
+                        <p class="mb-0">Total Users</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3>{{ students_count }}</h3>
+                        <p class="mb-0">Students</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body text-center">
+                        <h3>{{ hosts_count }}</h3>
+                        <p class="mb-0">Hosts</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h3>{{ admins_count }}</h3>
+                        <p class="mb-0">Admins</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Users Table -->
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">All Users ({{ users|length }})</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student Number</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Host Status</th>
+                                <th>Joined Date</th>
+                                <th>Last Login</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td><strong>{{ user.student_number }}</strong></td>
+                                <td>{{ user.full_name or 'N/A' }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.role == 'admin' %}
+                                        <span class="badge bg-danger">Admin</span>
+                                    {% elif user.role == 'host' %}
+                                        <span class="badge bg-warning text-dark">Host</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Student</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.role == 'host' %}
+                                        {% if user.approved_host %}
+                                            <span class="badge bg-success">✓ Approved</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">⏳ Pending</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {% if user.last_login %}
+                                        {{ user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                                    {% else %}
+                                        <span class="text-muted">Never</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">← Back to Home</a>
+            <a href="{{ url_for('auth.approve_hosts') }}" class="btn btn-outline-warning">Go to Host Approvals</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

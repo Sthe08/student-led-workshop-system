@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Student Workshop System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2 class="mb-4">My Profile</h2>
+        
+        <!-- Profile Information Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Account Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Student Number:</strong> {{ current_user.student_number }}</p>
+                        <p><strong>Email:</strong> {{ current_user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Role:</strong> 
+                            <span class="badge bg-{{ 'success' if current_user.role == 'admin' else ('info' if current_user.role == 'host' else 'primary') }}">
+                                {{ current_user.role|title }}
+                            </span>
+                        </p>
+                        <p><strong>Member Since:</strong> {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+                        {% if current_user.last_login %}
+                        <p><strong>Last Login:</strong> {{ current_user.last_login.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if current_user.role == 'host' %}
+                <hr>
+                <div class="alert alert-info">
+                    <strong>Host Status:</strong> 
+                    {% if current_user.approved_host %}
+                        <span class="badge bg-success">✓ Approved</span>
+                    {% else %}
+                        <span class="badge bg-warning">⏳ Pending Approval</span>
+                        <p class="mb-0 mt-2 small">Your host application is being reviewed by an administrator.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Edit Profile Form -->
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Edit Profile</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.profile') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full Name</label>
+                        {{ form.full_name(class="form-control") }}
+                        {% if form.full_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.full_name.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        {{ form.bio(class="form-control", rows=5) }}
+                        <div class="form-text">Tell us a bit about yourself and your interests.</div>
+                        {% if form.bio.errors %}
+                            <div class="text-danger small mt-1">{{ form.bio.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-success btn-lg") if form.submit else '<button type="submit" class="btn btn-success btn-lg">Update Profile</button>'|safe }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Back to Home -->
+        <div class="mt-4">
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">← Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
