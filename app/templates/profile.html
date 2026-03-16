@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Profile - Student Workshop System{% endblock %}
+{% block title %}My Profile - Data Rights & Privacy{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -47,9 +47,9 @@
         </div>
         
         <!-- Edit Profile Form -->
-        <div class="card shadow">
+        <div class="card shadow mb-4">
             <div class="card-header bg-success text-white">
-                <h4 class="mb-0">Edit Profile</h4>
+                <h4 class="mb-0"><i class="fas fa-user-edit"></i> Edit Profile</h4>
             </div>
             <div class="card-body">
                 <form method="POST" action="{{ url_for('auth.profile') }}">
@@ -79,9 +79,199 @@
             </div>
         </div>
         
+        <!-- POPIA Privacy Settings -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="fas fa-shield-alt"></i> Privacy & Consent Settings (POPIA)</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Your Data Rights:</strong> You have the right to access, correct, and delete your personal information under POPIA.
+                </div>
+                
+                <form method="POST" action="{{ url_for('auth.update_privacy_settings') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <h5 class="mb-3">Consent Preferences</h5>
+                    
+                    <!-- Essential Consent -->
+                    <div class="mb-3 p-3 border rounded">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="consent_data_processing" 
+                                   name="consent_data_processing" 
+                                   {% if current_user.consent_data_processing %}checked{% endif %} required>
+                            <label class="form-check-label" for="consent_data_processing">
+                                <strong>Essential:</strong> I consent to processing of my personal data for service delivery
+                            </label>
+                        </div>
+                        <small class="text-muted ms-4">Required to use the Workshop System. Cannot be disabled while using the service.</small>
+                    </div>
+                    
+                    <!-- Optional Notifications -->
+                    <div class="mb-3 p-3 border rounded">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="consent_notifications" 
+                                   name="consent_notifications" 
+                                   {% if current_user.consent_notifications %}checked{% endif %}>
+                            <label class="form-check-label" for="consent_notifications">
+                                <strong>Optional:</strong> Send me email notifications about workshop updates and reminders
+                            </label>
+                        </div>
+                        <small class="text-muted ms-4">You can opt-in or opt-out at any time.</small>
+                    </div>
+                    
+                    <!-- Cookie Policy -->
+                    <div class="mb-3 p-3 border rounded">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="consent_cookie_policy" 
+                                   name="consent_cookie_policy" 
+                                   {% if current_user.consent_cookie_policy %}checked{% endif %} required>
+                            <label class="form-check-label" for="consent_cookie_policy">
+                                <strong>Required:</strong> I accept the use of cookies for session management
+                            </label>
+                        </div>
+                        <small class="text-muted ms-4">Essential for login functionality.</small>
+                    </div>
+                    
+                    <!-- Privacy Policy -->
+                    <div class="mb-3 p-3 border rounded">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="privacy_policy_accepted" 
+                                   name="privacy_policy_accepted" 
+                                   {% if current_user.privacy_policy_accepted %}checked{% endif %} required>
+                            <label class="form-check-label" for="privacy_policy_accepted">
+                                <strong>Required:</strong> I have read and accept the <a href="{{ url_for('main.privacy_policy') }}" target="_blank">Privacy Policy</a>
+                            </label>
+                        </div>
+                        <small class="text-muted ms-4">Required to continue using the service.</small>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-info btn-lg">
+                            <i class="fas fa-save"></i> Save Privacy Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Data Rights Actions -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="fas fa-key"></i> Exercise Your Data Rights (POPIA)</h4>
+            </div>
+            <div class="card-body">
+                <p>Under POPIA, you have the right to:</p>
+                <ul>
+                    <li>Access all personal data we hold about you</li>
+                    <li>Request correction of inaccurate data</li>
+                    <li>Request deletion of your account ("right to be forgotten")</li>
+                    <li>Export your data in a machine-readable format</li>
+                </ul>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-download fa-3x text-primary mb-3"></i>
+                                <h5>Download My Data</h5>
+                                <p class="small">Get a copy of all your personal information</p>
+                                <form method="POST" action="{{ url_for('auth.request_data_export') }}">
+                                    {{ form.hidden_tag() }}
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-file-export"></i> Export Data
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-eye fa-3x text-success mb-3"></i>
+                                <h5>View My Audit Log</h5>
+                                <p class="small">See who accessed your data and when</p>
+                                <a href="{{ url_for('auth.view_my_audit_log') }}" class="btn btn-success">
+                                    <i class="fas fa-history"></i> View Log
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 border-danger">
+                            <div class="card-body text-center">
+                                <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                                <h5>Delete My Account</h5>
+                                <p class="small">Permanently delete your account and all data</p>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                    <i class="fas fa-user-slash"></i> Request Deletion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 border-secondary">
+                            <div class="card-body text-center">
+                                <i class="fas fa-edit fa-3x text-secondary mb-3"></i>
+                                <h5>Correct My Data</h5>
+                                <p class="small">Request correction of inaccurate information</p>
+                                <a href="{{ url_for('auth.profile') }}" class="btn btn-secondary">
+                                    <i class="fas fa-pen"></i> Edit Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Back to Home -->
         <div class="mt-4">
             <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">← Back to Home</a>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Confirm Account Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <strong>⚠️ WARNING:</strong> This action cannot be undone!
+                </div>
+                <p>Your account will be scheduled for deletion in 30 days. During this period:</p>
+                <ul>
+                    <li>Your account will be deactivated immediately</li>
+                    <li>You can cancel the deletion request by contacting support</li>
+                    <li>After 30 days, all your personal data will be permanently deleted</li>
+                </ul>
+                <p class="mt-3"><strong>Type your student number to confirm:</strong></p>
+                <form method="POST" action="{{ url_for('auth.request_account_deletion') }}">
+                    {{ form.hidden_tag() }}
+                    <input type="text" class="form-control mb-3" id="confirm_student_number" name="confirm_student_number" 
+                           placeholder="Enter {{ current_user.student_number }}" required>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="fas fa-trash"></i> Yes, Delete My Account
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

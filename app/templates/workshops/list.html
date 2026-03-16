@@ -17,12 +17,78 @@
         </div>
     </div>
     
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('workshop.list_workshops') }}">
+                        <div class="row g-3">
+                            <!-- Search Input -->
+                            <div class="col-md-4">
+                                <label for="search" class="form-label">Search</label>
+                                <input type="text" class="form-control" id="search" name="search" 
+                                       placeholder="Search workshops..." value="{{ search_query or '' }}">
+                            </div>
+                            
+                            <!-- Category Filter -->
+                            <div class="col-md-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">All Categories</option>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat[0] }}" {% if selected_category == cat[0] %}selected{% endif %}>
+                                            {{ cat[0] }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Date Filter -->
+                            <div class="col-md-3">
+                                <label for="date" class="form-label">Date Range</label>
+                                <select class="form-select" id="date" name="date">
+                                    <option value="">All Dates</option>
+                                    <option value="today" {% if selected_date == 'today' %}selected{% endif %}>Today</option>
+                                    <option value="this_week" {% if selected_date == 'this_week' %}selected{% endif %}>This Week</option>
+                                    <option value="this_month" {% if selected_date == 'this_month' %}selected{% endif %}>This Month</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Filter Buttons -->
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary me-2 w-100">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
+                                <a href="{{ url_for('workshop.list_workshops') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Count -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <p class="text-muted">
+                <strong>{{ pagination.total }}</strong> workshop{{ 's' if pagination.total != 1 else '' }} found
+                {% if search_query or selected_category or selected_date %}
+                    (filtered results)
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    
     <!-- Workshops List -->
     <div class="row">
         {% if workshops %}
             {% for workshop in workshops %}
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 shadow-sm">
                         <div class="card-header">
                             <span class="badge bg-info">{{ workshop.category }}</span>
                             <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
@@ -50,16 +116,56 @@
             {% endfor %}
         {% else %}
             <div class="col-md-12">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> No workshops available yet. 
-                    {% if current_user.is_authenticated and current_user.is_host() %}
-                        <a href="{{ url_for('workshop.create_workshop') }}">Create the first one!</a>
-                    {% else %}
-                        Check back later for upcoming workshops.
-                    {% endif %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h5>No workshops found</h5>
+                    <p>Try adjusting your search or filters to find what you're looking for.</p>
+                    <a href="{{ url_for('workshop.list_workshops') }}" class="btn btn-outline-primary mt-2">
+                        <i class="fas fa-redo"></i> Clear All Filters
+                    </a>
                 </div>
             </div>
         {% endif %}
     </div>
+    
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <nav aria-label="Workshop pagination">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous Page -->
+                    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('workshop.list_workshops', page=pagination.prev_num, search=search_query, category=selected_category, date=selected_date) }}" tabindex="-1">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    
+                    <!-- Page Numbers -->
+                    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('workshop.list_workshops', page=page_num, search=search_query, category=selected_category, date=selected_date) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- Next Page -->
+                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('workshop.list_workshops', page=pagination.next_num, search=search_query, category=selected_category, date=selected_date) }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

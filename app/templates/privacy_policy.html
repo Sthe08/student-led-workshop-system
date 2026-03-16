@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - POPIA Compliance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="mb-0"><i class="fas fa-shield-alt"></i> Privacy Policy</h1>
+                    <p class="mb-0 small">Last Updated: March 2026 | Compliant with POPIA Act 4 of 2013</p>
+                </div>
+                <div class="card-body">
+                    
+                    <div class="alert alert-info">
+                        <strong>📋 Your Privacy Rights:</strong> This policy explains how we collect, use, and protect your personal information in accordance with South Africa's Protection of Personal Information Act (POPIA).
+                    </div>
+
+                    <h2>1. Responsible Party</h2>
+                    <p>
+                        The Student-Led Workshop System is the responsible party for the processing of your personal information.
+                        <br><strong>Contact:</strong> privacy@workshop-system.ac.za
+                    </p>
+
+                    <h2>2. What Personal Information We Collect</h2>
+                    <p>We collect only the minimum necessary information to provide our services:</p>
+                    <ul>
+                        <li><strong>Student Number</strong> - Required for verification of student status</li>
+                        <li><strong>Email Address</strong> - For communication and account verification</li>
+                        <li><strong>Full Name</strong> - For identification and workshop certificates</li>
+                        <li><strong>Password (encrypted)</strong> - For secure authentication</li>
+                        <li><strong>Role</strong> - Student, Host, or Administrator</li>
+                        <li><strong>Login timestamps</strong> - For security and usage analytics</li>
+                    </ul>
+
+                    <h2>3. Why We Process Your Information</h2>
+                    <p>Your data is processed for the following purposes:</p>
+                    <ul>
+                        <li>To provide access to workshop creation and registration features</li>
+                        <li>To manage workshop attendance and feedback</li>
+                        <li>To send important service notifications (required)</li>
+                        <li>To comply with legal obligations (POPIA, institutional policies)</li>
+                        <li>To improve our services through anonymized analytics</li>
+                    </ul>
+
+                    <h2>4. Legal Basis for Processing (POPIA Section 11)</h2>
+                    <p>We process your information based on:</p>
+                    <ul>
+                        <li><strong>Consent</strong> - When you register, you consent to necessary processing</li>
+                        <li><strong>Contract Performance</strong> - To provide requested workshop services</li>
+                        <li><strong>Legal Obligation</strong> - To comply with applicable laws</li>
+                        <li><strong>Legitimate Interest</strong> - For system security and improvement</li>
+                    </ul>
+
+                    <h2>5. Your Data Rights (POPIA Chapter 3)</h2>
+                    <p>You have the following rights regarding your personal information:</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul>
+                                <li><strong>Right to Access</strong> - View all data we hold about you</li>
+                                <li><strong>Right to Correction</strong> - Update inaccurate information</li>
+                                <li><strong>Right to Deletion</strong> - Request account deletion ("right to be forgotten")</li>
+                                <li><strong>Right to Object</strong> - Opt-out of optional communications</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li><strong>Right to Data Portability</strong> - Export your data in machine-readable format</li>
+                                <li><strong>Right to Restrict Processing</strong> - Limit how we use your data</li>
+                                <li><strong>Right to Withdraw Consent</strong> - Change your notification preferences</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p>
+                        <a href="{{ url_for('auth.profile') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-user-cog"></i> Exercise Your Rights
+                        </a>
+                    </p>
+
+                    <h2>6. How We Protect Your Information</h2>
+                    <p>We implement industry-standard security measures:</p>
+                    <ul>
+                        <li><strong>Encryption at Rest</strong> - Passwords hashed using bcrypt</li>
+                        <li><strong>Encryption in Transit</strong> - HTTPS/TLS for all data transmission</li>
+                        <li><strong>Access Controls</strong> - Role-based permissions and authentication</li>
+                        <li><strong>Audit Logging</strong> - All data access logged for accountability</li>
+                        <li><strong>Regular Security Reviews</strong> - Ongoing vulnerability assessments</li>
+                    </ul>
+
+                    <h2>7. Data Retention Period</h2>
+                    <p>We retain your data only as long as necessary:</p>
+                    <ul>
+                        <li><strong>Active Accounts</strong> - Retained while you use the service</li>
+                        <li><strong>Inactive Accounts</strong> - Marked inactive after 2 years of no login</li>
+                        <li><strong>Deleted Accounts</strong> - Permanently removed 30 days after deletion request</li>
+                        <li><strong>Workshop Records</strong> - Archived after 5 years for institutional memory</li>
+                    </ul>
+
+                    <h2>8. Third-Party Service Providers</h2>
+                    <p>We may share limited data with:</p>
+                    <ul>
+                        <li><strong>Email Services</strong> - For sending notifications (with your consent)</li>
+                        <li><strong>SMS Services</strong> - For urgent reminders (opt-in only)</li>
+                        <li><strong>Hosting Provider</strong> - Secure cloud infrastructure (POPIA-compliant)</li>
+                        <li><strong>Institutional Systems</strong> - As required by university policies</li>
+                    </ul>
+                    <p><strong>All third parties are contractually obligated to protect your data per POPIA standards.</strong></p>
+
+                    <h2>9. Cookies Policy</h2>
+                    <p>We use cookies for:</p>
+                    <ul>
+                        <li><strong>Essential Cookies</strong> - Session management (required for login)</li>
+                        <li><strong>Preference Cookies</strong> - Remember your settings</li>
+                        <li><strong>Analytics Cookies</strong> - Understand usage patterns (anonymous)</li>
+                    </ul>
+                    <p>You can control cookie preferences through your browser settings.</p>
+
+                    <h2>10. Automated Decision Making</h2>
+                    <p>We do NOT use automated decision-making or profiling that significantly affects you.</p>
+
+                    <h2>11. Cross-Border Data Transfers</h2>
+                    <p>If data is transferred outside South Africa, we ensure adequate protection through:</p>
+                    <ul>
+                        <li>Standard Contractual Clauses</li>
+                        <li>Adequacy determinations</li>
+                        <li>Explicit user consent</li>
+                    </ul>
+
+                    <h2>12. Data Breach Response</h2>
+                    <p>In case of a data breach:</p>
+                    <ol>
+                        <li>We will assess the risk within 72 hours</li>
+                        <li>Notify the Information Regulator if high risk</li>
+                        <li>Notify affected users if necessary</li>
+                        <li>Take immediate remedial action</li>
+                    </ol>
+                    <p><strong>Report suspected breaches to:</strong> security@workshop-system.ac.za</p>
+
+                    <h2>13. Changes to This Policy</h2>
+                    <p>We may update this policy. Significant changes will be communicated via email and require renewed consent.</p>
+
+                    <h2>14. Contact Information</h2>
+                    <p>For privacy-related questions:</p>
+                    <ul>
+                        <li><strong>Email:</strong> privacy@workshop-system.ac.za</li>
+                        <li><strong>Data Protection Officer:</strong> dpo@workshop-system.ac.za</li>
+                        <li><strong>Information Regulator (SA):</strong> www.justice.gov.za/inforeg</li>
+                    </ul>
+
+                    <hr>
+
+                    <h2>15. Your Consent</h2>
+                    <p>By using this system, you acknowledge that you have read and understood this Privacy Policy.</p>
+                    
+                    {% if current_user.is_authenticated %}
+                        <div class="alert alert-success mt-3">
+                            <strong>✓ Your Current Consent Status:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Data Processing: {% if current_user.consent_data_processing %}<span class="badge bg-success">Given</span>{% else %}<span class="badge bg-warning">Required</span>{% endif %}</li>
+                                <li>Notifications: {% if current_user.consent_notifications %}<span class="badge bg-success">Opted-in</span>{% else %}<span class="badge bg-secondary">Opted-out</span>{% endif %}</li>
+                                <li>Cookie Policy: {% if current_user.consent_cookie_policy %}<span class="badge bg-success">Accepted</span>{% else %}<span class="badge bg-warning">Pending</span>{% endif %}</li>
+                                <li>Privacy Policy: {% if current_user.privacy_policy_accepted %}<span class="badge bg-success">Accepted</span>{% else %}<span class="badge bg-warning">Pending</span>{% endif %}</li>
+                            </ul>
+                        </div>
+                        <p class="mt-3">
+                            <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">
+                                <i class="fas fa-cog"></i> Manage Your Privacy Settings
+                            </a>
+                        </p>
+                    {% else %}
+                        <div class="alert alert-warning mt-3">
+                            Please <a href="{{ url_for('auth.login') }}">login</a> to view and manage your consent preferences.
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
