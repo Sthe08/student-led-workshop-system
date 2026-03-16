@@ -8,7 +8,7 @@
         <h2 class="mb-4">👥 User Management</h2>
         
         <div class="alert alert-info">
-            <strong>ℹ️ Read-Only View:</strong> This page displays all registered users and their roles.
+            <strong>Read-Only View:</strong> This page displays all registered users and their roles.
         </div>
         
         <!-- Statistics Cards -->
@@ -86,9 +86,9 @@
                                 <td>
                                     {% if user.role == 'host' %}
                                         {% if user.approved_host %}
-                                            <span class="badge bg-success">✓ Approved</span>
+                                            <span class="badge bg-success">Approved</span>
                                         {% else %}
-                                            <span class="badge bg-warning">⏳ Pending</span>
+                                            <span class="badge bg-warning">Pending</span>
                                         {% endif %}
                                     {% else %}
                                         <span class="text-muted">-</span>
