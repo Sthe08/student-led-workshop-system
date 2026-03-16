@@ -193,3 +193,148 @@ def manage_users():
                          students_count=students_count,
                          hosts_count=hosts_count,
                          admins_count=admins_count)
+
+
+@auth_bp.route('/profile/privacy-settings', methods=['POST'])
+@login_required
+def update_privacy_settings():
+    """Update user's privacy and consent settings"""
+    # Update consent preferences
+    current_user.consent_data_processing = request.form.get('consent_data_processing') == 'on'
+    current_user.consent_notifications = request.form.get('consent_notifications') == 'on'
+    current_user.consent_cookie_policy = request.form.get('consent_cookie_policy') == 'on'
+    current_user.privacy_policy_accepted = request.form.get('privacy_policy_accepted') == 'on'
+    
+    db.session.commit()
+    
+    flash('Privacy settings updated successfully!', 'success')
+    return redirect(url_for('auth.profile'))
+
+
+@auth_bp.route('/profile/request-data-export', methods=['POST'])
+@login_required
+def request_data_export():
+    """Request data export (data portability right)"""
+    current_user.data_export_requested = True
+    current_user.update_last_data_access()
+    
+    db.session.commit()
+    
+    # Log the action
+    from app.models.audit_log import AuditLog
+    AuditLog.log_action(
+        user_id=current_user.id,
+        action_type='DATA_EXPORT_REQUEST',
+        entity_type='user',
+        entity_id=current_user.id,
+        description=f'User {current_user.student_number} requested data export',
+        ip_address=request.remote_addr,
+        success=True
+    )
+    
+    flash('Data export request submitted. Your data will be prepared for download.', 'info')
+    return redirect(url_for('auth.profile'))
+
+
+@auth_bp.route('/profile/my-audit-log')
+@login_required
+def view_my_audit_log():
+    """View audit log entries related to current user"""
+    from app.models.audit_log import AuditLog
+    
+    # Get audit logs for this user
+    user_logs = AuditLog.query.filter_by(user_id=current_user.id).order_by(AuditLog.timestamp.desc()).limit(50).all()
+    
+    return render_template('auth/my_audit_log.html', user_logs=user_logs)
+
+
+@auth_bp.route('/profile/request-deletion', methods=['POST'])
+@login_required
+def request_account_deletion():
+    """Request account deletion (right to be forgotten)"""
+    confirm_student_number = request.form.get('confirm_student_number')
+    
+    if confirm_student_number != current_user.student_number:
+        flash('Student number does not match. Deletion request cancelled.', 'danger')
+        return redirect(url_for('auth.profile'))
+    
+    # Schedule deletion for 30 days
+    current_user.request_data_deletion(days_until_deletion=30)
+    current_user.account_active = False  # Immediate deactivation
+    
+    db.session.commit()
+    
+    # Log the action
+    from app.models.audit_log import AuditLog
+    AuditLog.log_action(
+        user_id=current_user.id,
+        action_type='DELETION_REQUEST',
+        entity_type='user',
+        entity_id=current_user.id,
+        description=f'User {current_user.student_number} requested account deletion',
+        ip_address=request.remote_addr,
+        success=True
+    )
+    
+    # Log out the user
+    logout_user()
+    
+    flash('Your account has been scheduled for deletion in 30 days. You have been logged out.', 'warning')
+    return redirect(url_for('main.index'))
+
+
+@auth_bp.route('/admin/audit-logs')
+@login_required
+def admin_audit_logs():
+    """Admin view of all audit logs"""
+    # Check if user is admin
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.', 'danger')
+        return redirect(url_for('main.index'))
+    
+    from app.models.audit_log import AuditLog
+    
+    # Get filter parameters
+    action_type = request.args.get('action_type', '')
+    user_id_filter = request.args.get('user_id', '')
+    
+    # Build query
+    query = AuditLog.query
+    
+    # Apply filters
+    if action_type:
+        query = query.filter_by(action_type=action_type)
+    
+    if user_id_filter:
+        query = query.filter_by(user_id=int(user_id_filter))
+    
+    # Order by most recent first
+    query = query.order_by(AuditLog.timestamp.desc())
+    
+    # Get all action types for filter dropdown
+    action_types = db.session.query(AuditLog.action_type).distinct().all()
+    
+    # Get paginated results
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    paginated_logs = query.paginate(page=page, per_page=per_page, error_out=False)
+    
+    return render_template('admin/audit_logs.html', 
+                         audit_logs=paginated_logs.items,
+                         pagination=paginated_logs,
+                         action_types=action_types,
+                         selected_action=action_type,
+                         selected_user=user_id_filter)
+
+
+@auth_bp.route('/update-cookie-consent', methods=['POST'])
+def update_cookie_consent():
+    """API endpoint to update cookie consent via JavaScript"""
+    if current_user.is_authenticated:
+        current_user.consent_cookie_policy = True
+        db.session.commit()
+        
+        return {'status': 'success', 'message': 'Cookie consent updated'}
+    else:
+        # For anonymous users, just acknowledge
+        return {'status': 'success', 'message': 'Consent recorded for session'}

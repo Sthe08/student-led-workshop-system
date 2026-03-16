@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Logs - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-shield-alt"></i> System Audit Logs</h2>
+            <p class="text-muted">POPIA Compliance - Data Access & Modification Tracking</p>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3>{{ pagination.total }}</h3>
+                    <p class="mb-0">Total Log Entries</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>{{ action_types|length }}</h3>
+                    <p class="mb-0">Unique Action Types</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-filter"></i> Filter Audit Logs</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('auth.admin_audit_logs') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="action_type" class="form-label">Action Type</label>
+                    <select class="form-select" id="action_type" name="action_type">
+                        <option value="">All Actions</option>
+                        {% for action in action_types %}
+                            <option value="{{ action[0] }}" {% if selected_action == action[0] %}selected{% endif %}>
+                                {{ action[0] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="user_id" class="form-label">User ID</label>
+                    <input type="number" class="form-control" id="user_id" name="user_id" 
+                           placeholder="Filter by user ID" value="{{ selected_user or '' }}">
+                </div>
+                
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search"></i> Filter
+                    </button>
+                    <a href="{{ url_for('auth.admin_audit_logs') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Audit Logs Table -->
+    {% if audit_logs %}
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Audit Log Entries (Showing {{ audit_logs|length }} of {{ pagination.total }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Timestamp</th>
+                                <th>User ID</th>
+                                <th>Action Type</th>
+                                <th>Entity</th>
+                                <th>Description</th>
+                                <th>IP Address</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in audit_logs %}
+                            <tr>
+                                <td><small>#{{ log.id }}</small></td>
+                                <td>
+                                    <small>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                </td>
+                                <td>
+                                    {% if log.user_id %}
+                                        <a href="{{ url_for('auth.manage_users') }}" class="badge bg-info">
+                                            #{{ log.user_id }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 
+                                        'success' if log.action_type == 'LOGIN' else
+                                        'secondary' if log.action_type == 'LOGOUT' else
+                                        'info' if log.action_type == 'VIEW_PROFILE' else
+                                        'primary' if log.action_type == 'DATA_EXPORT_REQUEST' else
+                                        'warning' if log.action_type == 'DELETION_REQUEST' else
+                                        'danger' if log.action_type == 'DELETE' else
+                                        'success' if log.action_type == 'CREATE' else
+                                        'info' if log.action_type == 'UPDATE' else
+                                        'dark'
+                                    }}">
+                                        {{ log.action_type }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if log.entity_type %}
+                                        <small class="text-muted">{{ log.entity_type }}</small>
+                                        {% if log.entity_id %}
+                                            <span class="badge bg-secondary">#{{ log.entity_id }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ (log.description or '-')[:50] }}{% if log.description and log.description|length > 50 %}...{% endif %}</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ log.ip_address or 'Unknown' }}</small>
+                                </td>
+                                <td>
+                                    {% if log.success %}
+                                        <span class="badge bg-success">✓ Success</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">✗ Failed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <nav aria-label="Audit log pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('auth.admin_audit_logs', page=pagination.prev_num, action_type=selected_action, user_id=selected_user) }}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        
+                        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('auth.admin_audit_logs', page=page_num, action_type=selected_action, user_id=selected_user) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('auth.admin_audit_logs', page=pagination.next_num, action_type=selected_action, user_id=selected_user) }}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-warning text-center">
+            <i class="fas fa-info-circle fa-2x mb-3"></i>
+            <h5>No audit logs found</h5>
+            <p>No entries match your current filters.</p>
+        </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+        <a href="{{ url_for('auth.manage_users') }}" class="btn btn-outline-primary">
+            <i class="fas fa-users"></i> User Management
+        </a>
+    </div>
+</div>
+{% endblock %}

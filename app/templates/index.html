@@ -11,12 +11,12 @@
     
     {% if current_user.is_authenticated %}
         <div class="alert alert-success">
-            <h4>Welcome back, {{ current_user.full_name or current_user.student_number }}! 👋</h4>
+            <h4>Welcome back, {{ current_user.full_name or current_user.student_number }}! </h4>
             <p>You are logged in as <strong>{{ current_user.role|title }}</strong></p>
             
             {% if not current_user.approved_host and current_user.role == 'host' %}
                 <div class="alert alert-warning mt-3">
-                    <strong>⚠️ Pending Approval:</strong> Your host account is awaiting admin approval.
+                    <strong>Pending Approval:</strong> Your host account is awaiting admin approval.
                 </div>
             {% endif %}
         </div>
@@ -25,7 +25,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">📊 Your Profile</h5>
+                        <h5 class="card-title">Your Profile</h5>
                         <p class="card-text">View and edit your profile information.</p>
                         <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">Go to Profile</a>
                     </div>
@@ -35,7 +35,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">🎯 Browse Workshops</h5>
+                        <h5 class="card-title">Browse Workshops</h5>
                         <p class="card-text">Discover and join upcoming workshops.</p>
                         <a href="{{ url_for('workshop.list_workshops') }}" class="btn btn-success">View All Workshops</a>
                     </div>
@@ -45,7 +45,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">📅 My Workshops</h5>
+                        <h5 class="card-title">My Workshops</h5>
                         <p class="card-text">View workshops you're hosting or attending.</p>
                         <a href="{{ url_for('workshop.my_workshops') }}" class="btn btn-outline-primary">My Dashboard</a>
                     </div>
@@ -56,7 +56,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100 border-danger">
                     <div class="card-body">
-                        <h5 class="card-title text-danger">👑 Admin Panel</h5>
+                        <h5 class="card-title text-danger">Admin Panel</h5>
                         <p class="card-text">Manage host approvals and system settings.</p>
                         <div class="d-grid gap-2">
                             <a href="{{ url_for('auth.approve_hosts') }}" class="btn btn-danger">Approve Hosts</a>
@@ -70,7 +70,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">ℹ️ About</h5>
+                        <h5 class="card-title"> About</h5>
                         <p class="card-text">Learn more about the workshop system.</p>
                         <a href="{{ url_for('main.about') }}" class="btn btn-outline-primary">About Page</a>
                     </div>
@@ -86,10 +86,10 @@
                         <p class="card-text lead">Join our community of learners and start your workshop journey.</p>
                         
                         <ul class="list-unstyled mt-4 text-start">
-                            <li class="mb-2">✅ Create and join peer-led workshops</li>
-                            <li class="mb-2">✅ Track attendance and earn feedback</li>
-                            <li class="mb-2">✅ Share knowledge with fellow students</li>
-                            <li class="mb-2">✅ Build your skills and portfolio</li>
+                            <li class="mb-2">Create and join peer-led workshops</li>
+                            <li class="mb-2">Track attendance and earn feedback</li>
+                            <li class="mb-2">Share knowledge with fellow students</li>
+                            <li class="mb-2">Build your skills and portfolio</li>
                         </ul>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
@@ -105,15 +105,15 @@
 
 <div class="row mt-5">
     <div class="col-md-4">
-        <h3>🎯 For Students</h3>
+        <h3>For Students</h3>
         <p>Discover workshops, learn new skills, and connect with peers who share your interests.</p>
     </div>
     <div class="col-md-4">
-        <h3>👨‍🏫 For Hosts</h3>
+        <h3>For Hosts</h3>
         <p>Share your expertise, create engaging workshops, and help others learn.</p>
     </div>
     <div class="col-md-4">
-        <h3>📈 Track Progress</h3>
+        <h3>Track Progress</h3>
         <p>Monitor your workshop participation and gather feedback to improve.</p>
     </div>
 </div>
