@@ -11,69 +11,12 @@ workshop_bp = Blueprint('workshop', __name__)
 
 @workshop_bp.route('/workshops')
 def list_workshops():
-    """Display all workshops with search, filtering, and pagination"""
+    """Display all workshops"""
     
-    # Get filter parameters
-    search = request.args.get('search', '')
-    category = request.args.get('category', '')
-    date_filter = request.args.get('date', '')
+    # Get all workshops ordered by date
+    workshops = Workshop.query.order_by(Workshop.date_time.asc()).all()
     
-    # Pagination parameters
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 6, type=int)
-    
-    # Base query - only show scheduled workshops
-    query = Workshop.query.filter_by(status='scheduled')
-    
-    # Apply search filter
-    if search:
-        query = query.filter(
-            (Workshop.title.ilike(f'%{search}%')) |
-            (Workshop.description.ilike(f'%{search}%'))
-        )
-    
-    # Apply category filter
-    if category:
-        query = query.filter_by(category=category)
-    
-    # Apply date filter (today, this_week, this_month)
-    today = datetime.utcnow().date()
-    if date_filter == 'today':
-        query = query.filter(db.func.date(Workshop.date_time) == today)
-    elif date_filter == 'this_week':
-        from datetime import timedelta
-        week_end = today + timedelta(days=7)
-        query = query.filter(
-            db.func.date(Workshop.date_time) >= today,
-            db.func.date(Workshop.date_time) <= week_end
-        )
-    elif date_filter == 'this_month':
-        from datetime import timedelta
-        month_end = today + timedelta(days=30)
-        query = query.filter(
-            db.func.date(Workshop.date_time) >= today,
-            db.func.date(Workshop.date_time) <= month_end
-        )
-    
-    # Order by date
-    query = query.order_by(Workshop.date_time.asc())
-    
-    # Apply pagination
-    paginated_workshops = query.paginate(page=page, per_page=per_page, error_out=False)
-    workshops = paginated_workshops.items
-    
-    # Get unique categories for filter dropdown
-    categories = db.session.query(Workshop.category).distinct().all()
-    
-    return render_template('workshops/list.html', 
-                         workshops=workshops,
-                         categories=categories,
-                         pagination=paginated_workshops,
-                         search_query=search,
-                         selected_category=category,
-                         selected_date=date_filter,
-                         current_page=page,
-                         per_page=per_page)
+    return render_template('workshops/list.html', workshops=workshops)
 
 
 @workshop_bp.route('/workshops/<int:id>')
