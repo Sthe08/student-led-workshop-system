@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Feedback - {{ workshop.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-star"></i> Workshop Feedback</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Thank you for attending <strong>{{ workshop.title }}</strong>! 
+                        Please share your feedback to help us improve.
+                    </div>
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <label for="rating" class="form-label fw-bold">
+                                {{ form.rating.label.text }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.rating(class="form-select form-select-lg") }}
+                            {% if form.rating.errors %}
+                                <div class="text-danger small mt-1">{{ form.rating.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="comment" class="form-label fw-bold">
+                                {{ form.comment.label.text }}
+                            </label>
+                            {{ form.comment(class="form-control", rows=5) }}
+                            <small class="form-text text-muted">Optional: Share specific comments about the workshop</small>
+                            {% if form.comment.errors %}
+                                <div class="text-danger small mt-1">{{ form.comment.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            {{ form.submit(class="btn btn-success btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

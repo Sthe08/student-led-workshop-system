@@ -1,0 +1,15 @@
+Workshop Update
+
+Hi {{ user_name }},
+
+There have been changes to your workshop:
+
+{{ workshop.title }}
+
+Changes made:
+{{ changes_made }}
+
+Please review the updated details and plan accordingly.
+
+---
+Student Workshop System

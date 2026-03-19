@@ -1,0 +1,17 @@
+Workshop Reminder
+
+Hi {{ user_name }},
+
+This is a friendly reminder that your workshop starts in {{ hours_before }} hours:
+
+{{ workshop.title }}
+Date: {{ workshop.date_time.strftime('%A, %B %d, %Y at %I:%M %p') }}
+Venue: {{ workshop.venue_name }}
+Duration: {{ workshop.duration_minutes }} minutes
+
+Please arrive 5-10 minutes early to get settled.
+
+See you soon!
+
+---
+Student Workshop System

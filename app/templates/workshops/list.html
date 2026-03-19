@@ -71,6 +71,77 @@
         </div>
     </div>
     
+    <!-- Happening Today Section -->
+    {% if today_workshops %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-warning mb-3 shadow" style="border-width: 3px;">
+                <div class="card-header bg-warning text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-sun"></i> Happening Today!</h4>
+                        <span class="badge bg-dark">{{ today_workshops|length }} workshop{{ 's' if today_workshops|length != 1 else '' }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for workshop in today_workshops %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 shadow-sm" style="border: 2px solid #ffc107; border-left-width: 5px;">
+                                <div class="card-header bg-warning text-dark">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-info">{{ workshop.category }}</span>
+                                        <span class="badge bg-success">{{ workshop.status|title }}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ workshop.title }}</h5>
+                                    <p class="card-text text-muted small">
+                                        {{ workshop.description[:100] }}{% if workshop.description|length > 100 %}...{% endif %}
+                                    </p>
+                                    
+                                    <!-- Host Info -->
+                                    <p class="card-text small">
+                                        <i class="fas fa-user-tie"></i> 
+                                        <strong>{{ workshop.host.full_name or workshop.host.student_number }}</strong>
+                                        {% if workshop.host.is_host() %}
+                                            <span class="badge bg-warning text-dark ms-1" style="font-size: 0.7rem;">
+                                                <i class="fas fa-star"></i> Host
+                                            </span>
+                                        {% endif %}
+                                    </p>
+                                    
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> {{ workshop.date_time.strftime('%I:%M %p') }} - {{ workshop.end_time.strftime('%I:%M %p') }}
+                                        </small>
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt"></i> {{ workshop.venue_name }}
+                                        </small>
+                                    </p>
+                                    
+                                    <!-- Live Badge if currently happening -->
+                                    {% if workshop.date_time <= now and workshop.end_time >= now %}
+                                    <div class="alert alert-success py-1 px-2 mb-2">
+                                        <span class="badge bg-success"><i class="fas fa-circle fa-beat"></i> LIVE NOW</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <!-- Results Count -->
     <div class="row mb-3">
         <div class="col-md-12">
@@ -90,18 +161,32 @@
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
                         <div class="card-header">
-                            <span class="badge bg-info">{{ workshop.category }}</span>
-                            <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
-                                {{ workshop.status|title }}
-                            </span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info">{{ workshop.category }}</span>
+                                <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
+                                    {{ workshop.status|title }}
+                                </span>
+                            </div>
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">{{ workshop.title }}</h5>
                             <p class="card-text">{{ workshop.description[:100] }}{% if workshop.description|length > 100 %}...{% endif %}</p>
+                            
+                            <!-- Host Info -->
+                            <p class="card-text small">
+                                <i class="fas fa-user-tie"></i> 
+                                <strong>{{ workshop.host.full_name or workshop.host.student_number }}</strong>
+                                {% if workshop.host.is_host() %}
+                                    <span class="badge bg-warning text-dark ms-1" style="font-size: 0.7rem;">
+                                        <i class="fas fa-star"></i> Host
+                                    </span>
+                                {% endif %}
+                            </p>
+                            
                             <p class="card-text">
                                 <small class="text-muted">
                                     <i class="fas fa-calendar"></i> {{ workshop.date_time.strftime('%B %d, %Y at %I:%M %p') }}<br>
-                                    <i class="fas fa-map-marker-alt"></i> {{ workshop.venue }}<br>
+                                    <i class="fas fa-map-marker-alt"></i> {{ workshop.venue_name }}<br>
                                     <i class="fas fa-users"></i> {{ workshop.registered_count }}/{{ workshop.capacity }} registered
                                 </small>
                             </p>

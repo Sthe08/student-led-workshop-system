@@ -1,0 +1,9 @@
+Hi {{ user_name }},
+
+We are writing to let you know that the workshop "{{ workshop.title }}" scheduled for {{ workshop.date_time.strftime('%B %d, %Y') }} at {{ workshop.date_time.strftime('%I:%M %p') }} has been *cancelled* by the host.
+
+We apologize for any inconvenience this may cause. 
+Your registration status has been automatically updated. Please feel free to browse and sign up for other upcoming workshops.
+
+Best regards,
+The Workshop Team

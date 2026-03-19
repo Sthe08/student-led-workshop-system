@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Check-In Dashboard: {{ workshop.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-clipboard-check"></i> Live Check-In Dashboard</h1>
+        <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Workshop
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">{{ workshop.title }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row text-center mb-4 mt-2">
+                <div class="col-md-4">
+                    <h1 class="display-4 text-primary">{{ registrations|length }}</h1>
+                    <p class="lead">Total Registrations</p>
+                </div>
+                <div class="col-md-4">
+                    {% set checked_in = registrations|selectattr('checked_in')|list %}
+                    <h1 class="display-4 text-success">{{ checked_in|length }}</h1>
+                    <p class="lead">Checked In</p>
+                </div>
+                <div class="col-md-4">
+                    {% set pending = registrations|rejectattr('checked_in')|list %}
+                    <h1 class="display-4 text-warning">{{ pending|length }}</h1>
+                    <p class="lead">Pending</p>
+                </div>
+            </div>
+            
+            <div class="progress mb-4" style="height: 25px;">
+                {% set pct = (checked_in|length / registrations|length * 100) if registrations else 0 %}
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ pct }}%;" aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100">{{ pct|round|int }}% Arrived</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-users"></i> Attendee Status List</h5>
+            <button class="btn btn-sm btn-outline-light" onclick="location.reload();"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Student Number</th>
+                        <th>Status</th>
+                        <th>Check-In Time</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in registrations %}
+                    <tr>
+                        <td><strong>{{ reg.user.full_name or "N/A" }}</strong></td>
+                        <td>{{ reg.user.student_number }}</td>
+                        <td>
+                            {% if reg.checked_in %}
+                                <span class="badge bg-success"><i class="fas fa-check"></i> Arrived</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Waiting</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if reg.check_in_time %}
+                                {{ reg.check_in_time.strftime('%I:%M:%S %p') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td><a href="mailto:{{ reg.user.email }}">{{ reg.user.email }}</a></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">No confirmed registrations yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Auto refresh script for live dashboard updates every 15 seconds -->
+<script>
+    setTimeout(function(){
+       location.reload();
+    }, 15000);
+</script>
+{% endblock %}

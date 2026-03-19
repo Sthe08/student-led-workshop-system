@@ -1,7 +1,11 @@
 from flask import Flask
 from flask_login import LoginManager
+from flask_mail import Mail
 from config import config
 from app.models.user import db, User
+
+
+mail = Mail()
 
 
 def create_app(config_name='development'):
@@ -22,6 +26,9 @@ def create_app(config_name='development'):
     # Initialize database
     db.init_app(app)
     
+    # Initialize Flask-Mail
+    mail.init_app(app)
+    
     # Initialize Flask-Login
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -38,10 +45,16 @@ def create_app(config_name='development'):
     from app.routes.main import main_bp
     from app.routes.auth import auth_bp
     from app.routes.workshop import workshop_bp
+    from app.routes.admin import admin_bp
+    from app.routes.notification import notification_bp
+    from app.routes.attendance import attendance_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(workshop_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(notification_bp)
+    app.register_blueprint(attendance_bp)
     
     # Create database tables
     with app.app_context():

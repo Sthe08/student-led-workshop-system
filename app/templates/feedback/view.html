@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Workshop Feedback - {{ workshop.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-chart-bar"></i> Workshop Feedback Report</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>{{ workshop.title }}</h5>
+                        <p class="text-muted">
+                            <i class="fas fa-calendar"></i> {{ workshop.date_time.strftime('%A, %B %d, %Y') }}
+                        </p>
+                    </div>
+                    
+                    <!-- Summary Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-primary">{{ total_feedback }}</h3>
+                                    <p class="text-muted mb-0">Total Feedback</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-warning">
+                                        {% for i in range(average_rating|int) %}⭐{% endfor %}
+                                        {% if average_rating % 1 >= 0.5 %}½⭐{% endif %}
+                                    </h3>
+                                    <p class="text-muted mb-0">Average Rating: {{ average_rating }}/5</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-success">{{ ((total_feedback / workshop.registered_count) * 100)|round if workshop.registered_count > 0 else 0 }}%</h3>
+                                    <p class="text-muted mb-0">Response Rate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rating Distribution -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Rating Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress" style="height: 40px;">
+                                {% set total = rating_distribution[5] + rating_distribution[4] + rating_distribution[3] + rating_distribution[2] + rating_distribution[1] %}
+                                {% if total > 0 %}
+                                    {% set width5 = (rating_distribution[5] / total * 100)|round %}
+                                    {% set width4 = (rating_distribution[4] / total * 100)|round %}
+                                    {% set width3 = (rating_distribution[3] / total * 100)|round %}
+                                    {% set width2 = (rating_distribution[2] / total * 100)|round %}
+                                    {% set width1 = (rating_distribution[1] / total * 100)|round %}
+                                    
+                                    <div class="progress-bar bg-success" style="width: {{ width5 }}%" title="5 Stars: {{ rating_distribution[5] }}">
+                                        {% if width5 > 10 %}⭐ {{ rating_distribution[5] }}{% endif %}
+                                    </div>
+                                    <div class="progress-bar bg-primary" style="width: {{ width4 }}%" title="4 Stars: {{ rating_distribution[4] }}">
+                                        {% if width4 > 10 %}{{ rating_distribution[4] }}{% endif %}
+                                    </div>
+                                    <div class="progress-bar bg-info" style="width: {{ width3 }}%" title="3 Stars: {{ rating_distribution[3] }}">
+                                        {% if width3 > 10 %}{{ rating_distribution[3] }}{% endif %}
+                                    </div>
+                                    <div class="progress-bar bg-warning" style="width: {{ width2 }}%" title="2 Stars: {{ rating_distribution[2] }}">
+                                        {% if width2 > 10 %}{{ rating_distribution[2] }}{% endif %}
+                                    </div>
+                                    <div class="progress-bar bg-danger" style="width: {{ width1 }}%" title="1 Star: {{ rating_distribution[1] }}">
+                                        {% if width1 > 10 %}{{ rating_distribution[1] }}{% endif %}
+                                    </div>
+                                {% else %}
+                                    <div class="w-100 text-center text-muted">No feedback yet</div>
+                                {% endif %}
+                            </div>
+                            <div class="mt-2 d-flex justify-content-between small text-muted">
+                                <span>⭐ 5: {{ rating_distribution[5] }}</span>
+                                <span>⭐ 4: {{ rating_distribution[4] }}</span>
+                                <span>⭐ 3: {{ rating_distribution[3] }}</span>
+                                <span>⭐ 2: {{ rating_distribution[2] }}</span>
+                                <span>⭐ 1: {{ rating_distribution[1] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Individual Feedback -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-comments"></i> Student Comments</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if feedback_list %}
+                                <div class="list-group">
+                                    {% for feedback in feedback_list|sort(attribute='submitted_at', reverse=true) %}
+                                    <div class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">
+                                                {% for i in range(feedback.rating) %}⭐{% endfor %}
+                                            </h6>
+                                            <small class="text-muted">{{ feedback.submitted_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                        </div>
+                                        {% if feedback.comment %}
+                                            <p class="mb-1 mt-2">{{ feedback.comment }}</p>
+                                        {% else %}
+                                            <p class="mb-1 mt-2 text-muted"><em>No comment provided</em></p>
+                                        {% endif %}
+                                        <small class="text-muted">Student #{{ feedback.user.student_number }}</small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> No feedback submitted yet for this workshop.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Workshop
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

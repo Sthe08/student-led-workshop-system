@@ -1,0 +1,8 @@
+Hello {{ user_name }},
+
+You have been placed on the waitlist for the workshop "{{ workshop.title }}".
+
+We will notify you immediately if a spot opens up.
+
+Thank you,
+Student Workshop System

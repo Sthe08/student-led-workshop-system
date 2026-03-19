@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SelectField, TextAreaField, SubmitField, DateTimeField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, TextAreaField, SubmitField, DateTimeField, IntegerField, RadioField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, NumberRange
 from app.models.user import User
 
@@ -101,14 +101,45 @@ class WorkshopForm(FlaskForm):
         DataRequired(message='Date and time are required')
     ])
     
-    venue = StringField('Venue', validators=[
-        DataRequired(message='Venue is required'),
-        Length(min=3, max=200, message='Venue must be between 3 and 200 characters')
-    ])
+    venue = SelectField('Select a Venue', coerce=int, validators=[], validate_choice=False)  # Validation handled in route
+    
+    duration_minutes = IntegerField('Duration (minutes)', 
+        default=60,
+        validators=[
+            DataRequired(message='Duration is required'),
+            NumberRange(min=15, max=300, message='Duration must be between 15 and 300 minutes')
+        ])
     
     capacity = IntegerField('Capacity', validators=[
         DataRequired(message='Capacity is required'),
         NumberRange(min=1, max=500, message='Capacity must be between 1 and 500')
     ])
     
+    workshop_type = SelectField('Workshop Type', choices=[
+        ('physical', 'In-Person (Physical Venue)'),
+        ('virtual', 'Virtual (Online Meeting)')
+    ], default='physical', validators=[DataRequired()])
+    
+    meeting_provider = SelectField('Meeting Platform', choices=[
+        ('google_meet', 'Google Meet'),
+        ('teams', 'Microsoft Teams')
+    ], default='google_meet')
+    
     submit = SubmitField('Save Workshop')
+
+
+class FeedbackForm(FlaskForm):
+    """Form for submitting workshop feedback"""
+    
+    rating = SelectField('Rating', choices=[
+        ('5', '⭐⭐⭐⭐⭐ - Excellent'),
+        ('4', '⭐⭐⭐⭐ - Very Good'),
+        ('3', '⭐⭐⭐ - Good'),
+        ('2', '⭐⭐ - Fair'),
+        ('1', '⭐ - Poor')
+    ], validators=[DataRequired(message='Please select a rating')])
+    
+    comment = TextAreaField('Comments (Optional)', render_kw={"rows": 5},
+        validators=[Length(max=1000, message='Comment must be less than 1000 characters')])
+    
+    submit = SubmitField('Submit Feedback')

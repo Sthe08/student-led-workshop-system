@@ -1,0 +1,15 @@
+Hi {{ host_name }},
+
+{% if approved %}
+Great news! Your venue booking for "{{ workshop.title }}" has been approved by the administration.
+Venue: {{ location }}
+Students can now see your physical room and you are all set for the workshop date.
+{% else %}
+We're sorry, but your venue booking for "{{ workshop.title }}" could not be approved for {{ location }}.
+Please log in to edit your workshop details and select a different venue or adjust the time/date to avoid conflicts.
+{% endif %}
+
+If you have any questions, please reach out to the administration.
+
+Best regards,
+The Workshop Team

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}My Notifications{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="fas fa-bell"></i> My Notifications</h1>
+                <button id="markAllRead" class="btn btn-outline-primary">
+                    <i class="fas fa-check-double"></i> Mark All Read
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    {% if notifications %}
+    <div class="list-group">
+        {% for notification in notifications %}
+        <div class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-warning{% endif %}" data-notification-id="{{ notification.id }}">
+            <div class="d-flex w-100 justify-content-between">
+                <div>
+                    <h5 class="mb-1">
+                        {% if notification.notification_type == 'broadcast' %}
+                            <i class="fas fa-bullhorn text-warning"></i> Announcement
+                        {% elif notification.notification_type == 'reminder' %}
+                            <i class="fas fa-clock text-info"></i> Reminder
+                        {% elif notification.notification_type == 'confirmation' %}
+                            <i class="fas fa-check-circle text-success"></i> Confirmation
+                        {% elif notification.notification_type == 'update' %}
+                            <i class="fas fa-edit text-primary"></i> Update
+                        {% elif notification.notification_type == 'cancellation' %}
+                            <i class="fas fa-times-circle text-danger"></i> Cancellation
+                        {% endif %}
+                        {{ notification.subject }}
+                    </h5>
+                    <p class="mb-1">{{ notification.message }}</p>
+                    <small class="text-muted">
+                        <i class="fas fa-calendar"></i> {{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        {% if notification.email_sent %}
+                            | <i class="fas fa-envelope"></i> Email sent
+                        {% endif %}
+                    </small>
+                </div>
+                <div>
+                    {% if not notification.is_read %}
+                    <button class="btn btn-sm btn-outline-success mark-read" data-notification-id="{{ notification.id }}" title="Mark as read">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle fa-2x mb-3"></i>
+        <h5>No notifications yet</h5>
+        <p>You'll see notifications here when hosts send announcements or workshop updates.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Mark individual notification as read
+document.querySelectorAll('.mark-read').forEach(button => {
+    button.addEventListener('click', function() {
+        const notificationId = this.dataset.notificationId;
+        
+        fetch(`/notifications/${notificationId}/mark-read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const item = this.closest('.list-group-item');
+                item.classList.remove('list-group-item-warning');
+                this.remove();
+            }
+        });
+    });
+});
+
+// Mark all as read
+document.getElementById('markAllRead').addEventListener('click', function() {
+    fetch('/notifications/mark-all-read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelectorAll('.list-group-item-warning').forEach(item => {
+                item.classList.remove('list-group-item-warning');
+            });
+            document.querySelectorAll('.mark-read').forEach(btn => btn.remove());
+        }
+    });
+});
+</script>
+{% endblock %}

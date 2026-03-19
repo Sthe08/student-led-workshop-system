@@ -1,0 +1,19 @@
+Registration Confirmed!
+
+Hi {{ user_name }},
+
+Your registration for the following workshop has been confirmed:
+
+{{ workshop.title }}
+Date: {{ workshop.date_time.strftime('%A, %B %d, %Y at %I:%M %p') }}
+Venue: {{ workshop.venue_name }}
+Duration: {{ workshop.duration_minutes }} minutes
+
+Add to Your Calendar:
+Google Calendar: {{ google_calendar_url }}
+Outlook Calendar: {{ outlook_calendar_url }}
+
+We look forward to seeing you there!
+
+---
+Student Workshop System

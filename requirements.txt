@@ -6,3 +6,18 @@ Flask-WTF==1.2.1
 email-validator==2.1.0
 bcrypt==4.1.2
 Werkzeug==3.0.1
+APScheduler==3.10.4
+bleach==6.1.0
+
+# Virtual meeting integration
+google-api-python-client==2.118.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.0
+msal==1.26.0
+requests==2.31.0
+
+# QR code generation for check-in
+qrcode==8.2
+Pillow>=10.2.0
+
+python-dotenv==1.0.1

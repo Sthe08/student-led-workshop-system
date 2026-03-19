@@ -1,81 +1,249 @@
-{% extends"base.html" %}
+{% extends "base.html" %}
 
-{% block title %}My Workshops{% endblock %}
+{% block title %}My Workshops Dashboard{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1><i class="fas fa-calendar-alt"></i> My Workshops</h1>
+    <h1><i class="fas fa-calendar-alt"></i> My Workshops Dashboard</h1>
     
-    <div class="row mt-4">
-        <!-- Organized Workshops -->
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> Workshops I'm Hosting</h3>
-                </div>
-                <div class="card-body">
-                    {% if organized_workshops %}
-                        <div class="list-group">
-                            {% for workshop in organized_workshops %}
-                                <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">{{ workshop.title }}</h5>
-                                        <small>{{ workshop.date_time.strftime('%b %d, %Y') }}</small>
-                                    </div>
-                                    <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
-                                    <small>
-                                        <span class="badge bg-info">{{ workshop.category }}</span>
-                                        <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
-                                            {{ workshop.status|title }}
-                                        </span>
-                                        <span class="ms-2">{{ workshop.registered_count }}/{{ workshop.capacity }} registered</span>
-                                    </small>
-                                </a>
-                            {% endfor %}
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mt-4" id="workshopTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">
+                <i class="fas fa-clock"></i> Upcoming
+                {% if upcoming_registered or upcoming_organized %}
+                    <span class="badge bg-primary ms-1">{{ (upcoming_registered|length) + (upcoming_organized|length) }}</span>
+                {% endif %}
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">
+                <i class="fas fa-history"></i> Past
+                {% if past_registered or past_organized %}
+                    <span class="badge bg-secondary ms-1">{{ (past_registered|length) + (past_organized|length) }}</span>
+                {% endif %}
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="hosted-tab" data-bs-toggle="tab" data-bs-target="#hosted" type="button" role="tab">
+                <i class="fas fa-chalkboard-teacher"></i> Hosted
+                {% if organized_workshops %}
+                    <span class="badge bg-info ms-1">{{ organized_workshops|length }}</span>
+                {% endif %}
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="workshopTabsContent">
+        
+        <!-- Upcoming Tab -->
+        <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+            <div class="row mt-4">
+                <!-- Upcoming Registered -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0"><i class="fas fa-user-graduate"></i> Attending</h4>
                         </div>
-                    {% else %}
-                        <p class="text-muted mb-0">You haven't created any workshops yet.</p>
-                        {% if current_user.is_authenticated and current_user.is_host() %}
-                            <a href="{{ url_for('workshop.create_workshop') }}" class="btn btn-sm btn-primary mt-2">
-                                <i class="fas fa-plus-circle"></i> Create Your First Workshop
-                            </a>
-                        {% endif %}
-                    {% endif %}
+                        <div class="card-body">
+                            {% if upcoming_registered %}
+                                <div class="list-group">
+                                    {% for item in upcoming_registered %}
+                                        {% set workshop = item.workshop %}
+                                        {% set status = item.status %}
+                                        <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1">{{ workshop.title }}</h5>
+                                                <small>{{ workshop.date_time.strftime('%b %d, %Y') }}</small>
+                                            </div>
+                                            <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
+                                            <small>
+                                                <span class="badge bg-info">{{ workshop.category }}</span>
+                                                <span class="badge {% if status == 'confirmed' %}bg-success{% elif status == 'cancelled' %}bg-danger{% elif status == 'waitlisted' %}bg-info{% else %}bg-warning{% endif %}">
+                                                    {{ status|title }}
+                                                </span>
+                                                <span class="ms-2">{{ workshop.date_time.strftime('%I:%M %p') }}</span>
+                                            </small>
+                                            {% if status == 'confirmed' %}
+                                                <div class="mt-2 text-end">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#qrModal{{ workshop.id }}" onclick="event.preventDefault();">
+                                                        <i class="fas fa-qrcode"></i> Show Check-in QR
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- QR Modal -->
+                                                <div class="modal fade" id="qrModal{{ workshop.id }}" tabindex="-1" aria-labelledby="qrModalLabel{{ workshop.id }}" aria-hidden="true" onclick="event.preventDefault();">
+                                                  <div class="modal-dialog modal-dialog-centered modal-sm">
+                                                    <div class="modal-content">
+                                                      <div class="modal-header">
+                                                        <h5 class="modal-title" id="qrModalLabel{{ workshop.id }}">Check-In QR</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                      </div>
+                                                      <div class="modal-body text-center">
+                                                        <p class="mb-3">Show this code to the host to check in:</p>
+                                                        <img src="{{ url_for('attendance.serve_qr_code', id=workshop.id, registration_id=item.id) }}" alt="QR Code" class="img-fluid border p-2 bg-white" style="max-width: 200px;">
+                                                        <p class="mt-3 text-muted small">{{ workshop.title }}</p>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                            {% endif %}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">No upcoming workshops.</p>
+                                <a href="{{ url_for('workshop.list_workshops') }}" class="btn btn-sm btn-success mt-2">
+                                    <i class="fas fa-search"></i> Browse Workshops
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Organized -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> Organizing</h4>
+                        </div>
+                        <div class="card-body">
+                            {% if upcoming_organized %}
+                                <div class="list-group">
+                                    {% for workshop in upcoming_organized %}
+                                        <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1">{{ workshop.title }}</h5>
+                                                <small>{{ workshop.date_time.strftime('%b %d, %Y') }}</small>
+                                            </div>
+                                            <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
+                                            <small>
+                                                <span class="badge bg-info">{{ workshop.category }}</span>
+                                                <span class="badge bg-success">{{ workshop.status|title }}</span>
+                                                <span class="ms-2">{{ workshop.registered_count }}/{{ workshop.capacity }} registered</span>
+                                            </small>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">No upcoming organized workshops.</p>
+                                {% if current_user.is_authenticated and current_user.is_host() %}
+                                    <a href="{{ url_for('workshop.create_workshop') }}" class="btn btn-sm btn-primary mt-2">
+                                        <i class="fas fa-plus-circle"></i> Create Workshop
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Registered Workshops -->
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0"><i class="fas fa-user-graduate"></i> Workshops I'm Attending</h3>
-                </div>
-                <div class="card-body">
-                    {% if registered_workshops %}
-                        <div class="list-group">
-                            {% for workshop in registered_workshops %}
-                                <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">{{ workshop.title }}</h5>
-                                        <small>{{ workshop.date_time.strftime('%b %d, %Y') }}</small>
-                                    </div>
-                                    <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
-                                    <small>
-                                        <span class="badge bg-info">{{ workshop.category }}</span>
-                                        <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
-                                            {{ workshop.status|title }}
-                                        </span>
-                                    </small>
-                                </a>
-                            {% endfor %}
+        <!-- Past Tab -->
+        <div class="tab-pane fade" id="past" role="tabpanel">
+            <div class="row mt-4">
+                <!-- Past Registered -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h4 class="mb-0"><i class="fas fa-history"></i> Previously Attended</h4>
                         </div>
-                    {% else %}
-                        <p class="text-muted mb-0">You haven't registered for any workshops yet.</p>
-                        <a href="{{ url_for('workshop.list_workshops') }}" class="btn btn-sm btn-success mt-2">
-                            <i class="fas fa-search"></i> Browse Available Workshops
-                        </a>
-                    {% endif %}
+                        <div class="card-body">
+                            {% if past_registered %}
+                                <div class="list-group">
+                                    {% for item in past_registered %}
+                                        {% set workshop = item.workshop %}
+                                        <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1">{{ workshop.title }}</h5>
+                                                <small>{{ workshop.date_time.strftime('%b %d, %Y') }}</small>
+                                            </div>
+                                            <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
+                                            <small>
+                                                <span class="badge bg-info">{{ workshop.category }}</span>
+                                                <span class="badge bg-secondary">{{ workshop.status|title }}</span>
+                                            </small>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">No past workshops.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Past Organized -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h4 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> Previously Hosted</h4>
+                        </div>
+                        <div class="card-body">
+                            {% if past_organized %}
+                                <div class="list-group">
+                                    {% for workshop in past_organized %}
+                                        <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1">{{ workshop.title }}</h5>
+                                                <small>{{ workshop.date_time.strftime('%b %d, %Y') }}</small>
+                                            </div>
+                                            <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
+                                            <small>
+                                                <span class="badge bg-info">{{ workshop.category }}</span>
+                                                <span class="badge bg-secondary">{{ workshop.status|title }}</span>
+                                            </small>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">No past organized workshops.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hosted Tab (All) -->
+        <div class="tab-pane fade" id="hosted" role="tabpanel">
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h4 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> All Hosted Workshops</h4>
+                        </div>
+                        <div class="card-body">
+                            {% if organized_workshops %}
+                                <div class="list-group">
+                                    {% for workshop in organized_workshops %}
+                                        <a href="{{ url_for('workshop.view_workshop', id=workshop.id) }}" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1">{{ workshop.title }}</h5>
+                                                <small>{{ workshop.date_time.strftime('%b %d, %Y %I:%M %p') }}</small>
+                                            </div>
+                                            <p class="mb-1">{{ workshop.description[:80] }}{% if workshop.description|length > 80 %}...{% endif %}</p>
+                                            <small>
+                                                <span class="badge bg-info">{{ workshop.category }}</span>
+                                                <span class="badge {% if workshop.status == 'scheduled' %}bg-success{% elif workshop.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
+                                                    {{ workshop.status|title }}
+                                                </span>
+                                                <span class="ms-2">{{ workshop.registered_count }}/{{ workshop.capacity }} registered</span>
+                                            </small>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">You haven't created any workshops yet.</p>
+                                {% if current_user.is_authenticated and current_user.is_host() %}
+                                    <a href="{{ url_for('workshop.create_workshop') }}" class="btn btn-sm btn-primary mt-2">
+                                        <i class="fas fa-plus-circle"></i> Create Your First Workshop
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

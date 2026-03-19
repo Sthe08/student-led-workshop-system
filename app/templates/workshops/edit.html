@@ -50,6 +50,26 @@
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
+                                {{ form.workshop_type.label(class="form-label") }}
+                                {{ form.workshop_type(class="form-select", id="workshopTypeEdit") }}
+                                {% for error in form.workshop_type.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                                <small class="form-text text-muted">Workshop format type</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3" id="meetingProviderFieldEdit" style="display: none;">
+                                {{ form.meeting_provider.label(class="form-label") }}
+                                {{ form.meeting_provider(class="form-select") }}
+                                {% for error in form.meeting_provider.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                                <small class="form-text text-muted">Platform for virtual meeting</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3" id="dateTimeFieldEdit">
                                 {{ form.date_time.label(class="form-label") }}
                                 {{ form.date_time(class="form-control", type="datetime-local") }}
                                 {% for error in form.date_time.errors %}
@@ -57,14 +77,21 @@
                                 {% endfor %}
                             </div>
                             
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3" id="venueFieldEdit">
                                 {{ form.venue.label(class="form-label") }}
-                                {{ form.venue(class="form-control") }}
+                                {{ form.venue(class="form-select") }}
+                                <small class="form-text text-muted">Choose from available venues</small>
                                 {% for error in form.venue.errors %}
                                     <small class="text-danger">{{ error }}</small>
                                 {% endfor %}
                             </div>
                         </div>
+                        
+                        {% if workshop.is_virtual() %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-video"></i> <strong>Current:</strong> This is a virtual workshop. Meeting link: <code>{{ workshop.meeting_link }}</code>
+                        </div>
+                        {% endif %}
                         
                         <div class="d-grid gap-2">
                             {{ form.submit(class="btn btn-warning btn-lg") }}
@@ -81,4 +108,31 @@
         </div>
     </div>
 </div>
+
+<script>
+// Handle workshop type change for edit form - show/hide venue vs meeting provider fields
+document.addEventListener('DOMContentLoaded', function() {
+    const workshopTypeSelect = document.getElementById('workshopTypeEdit');
+    const venueField = document.getElementById('venueFieldEdit');
+    const meetingProviderField = document.getElementById('meetingProviderFieldEdit');
+    
+    function toggleWorkshopTypeFields() {
+        if (workshopTypeSelect.value === 'virtual') {
+            // Virtual workshop - hide venue, show meeting provider
+            venueField.style.display = 'none';
+            meetingProviderField.style.display = 'block';
+        } else {
+            // Physical workshop - show venue, hide meeting provider
+            venueField.style.display = 'block';
+            meetingProviderField.style.display = 'none';
+        }
+    }
+    
+    // Listen for changes
+    workshopTypeSelect.addEventListener('change', toggleWorkshopTypeFields);
+    
+    // Initialize on page load
+    toggleWorkshopTypeFields();
+});
+</script>
 {% endblock %}

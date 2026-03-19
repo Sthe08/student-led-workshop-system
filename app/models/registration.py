@@ -30,6 +30,15 @@ class Registration(db.Model):
     # Cancellation timestamp (if applicable)
     cancelled_at = db.Column(db.DateTime)
     
+    # Check-in token (unique UUID for QR code)
+    check_in_token = db.Column(db.String(36), unique=True, nullable=True)
+    
+    # Attendance status
+    checked_in = db.Column(db.Boolean, default=False)
+    
+    # Check-in timestamp
+    check_in_time = db.Column(db.DateTime)
+    
     # Unique constraint to prevent duplicate registrations
     __table_args__ = (db.UniqueConstraint('user_id', 'workshop_id', name='unique_user_workshop'),)
     
@@ -38,3 +47,11 @@ class Registration(db.Model):
     
     def __repr__(self):
         return f'<Registration User:{self.user_id} Workshop:{self.workshop_id}>'
+    
+    def generate_token(self):
+        """Generate a new unique check-in token if one doesn't exist"""
+        import uuid
+        if not self.check_in_token:
+            self.check_in_token = str(uuid.uuid4())
+            return True
+        return False

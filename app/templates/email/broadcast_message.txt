@@ -1,0 +1,14 @@
+Workshop Announcement
+
+Hi {{ user_name }},
+
+{{ host_name }}, host of {{ workshop.title }}, has sent you an important message:
+
+{{ message }}
+
+Workshop Details:
+Date: {{ workshop.date_time.strftime('%A, %B %d, %Y at %I:%M %p') }}
+Venue: {{ workshop.venue_name }}
+
+---
+Student Workshop System

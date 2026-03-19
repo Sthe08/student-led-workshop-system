@@ -1,0 +1,12 @@
+Great news, {{ user_name }}!
+
+A spot has opened up for "{{ workshop.title }}", and you have been automatically moved from the waitlist to confirmed registration!
+
+Date & Time: {{ workshop.date_time.strftime('%B %d, %Y at %I:%M %p') }}
+Location: {{ workshop.venue_name if workshop.venue_name else 'TBA' }}
+
+Google Calendar Link: {{ google_calendar_url }}
+Outlook Link: {{ outlook_calendar_url }}
+
+See you there!
+Student Workshop System

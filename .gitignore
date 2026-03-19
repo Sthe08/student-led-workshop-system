@@ -25,7 +25,11 @@ wheels/
 venv/
 env/
 ENV/
-.venv
+.venv/
+Include/
+Scripts/
+Lib/
+pyvenv.cfg
 
 # IDE
 .vscode/
@@ -52,3 +56,8 @@ instance/
 config_local.py
 secrets.py
 .env.local
+
+# Google OAuth credentials (NEVER commit these)
+credentials.json
+token.pickle
+token.json

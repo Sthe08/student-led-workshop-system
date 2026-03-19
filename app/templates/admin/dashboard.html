@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+            <p class="text-muted">Comprehensive analytics and statistics for the workshop system</p>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h3>{{ total_workshops }}</h3>
+                    <p class="mb-0">Total Workshops</p>
+                    <small>Scheduled: {{ scheduled_workshops }} | Completed: {{ completed_workshops }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h3>{{ total_users }}</h3>
+                    <p class="mb-0">Total Users</p>
+                    <small>Students: {{ total_students }} | Hosts: {{ approved_hosts }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h3>{{ confirmed_registrations }}</h3>
+                    <p class="mb-0">Total Registrations</p>
+                    <small>Attendance Rate: {{ attendance_rate }}%</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h3>{{ avg_overall_rating }}/5</h3>
+                    <p class="mb-0">Average Rating</p>
+                    <small>Total Feedback: {{ total_feedback }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Attendance Trends (Last 12 Months)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="attendanceTrendsChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Category Popularity</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryPopularityChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Rating Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ratingDistributionChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-users"></i> Top Active Hosts</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for host in active_hosts[:5] %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ host.full_name or host.student_number }}</strong>
+                                <br>
+                                <small class="text-muted">Student #{{ host.student_number }}</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ host.workshop_count }} workshops</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Category Statistics Table -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-table"></i> Category Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Workshops</th>
+                                    <th>Average Rating</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in category_stats %}
+                                <tr>
+                                    <td><strong>{{ stat.category }}</strong></td>
+                                    <td>{{ stat.workshop_count }}</td>
+                                    <td>
+                                        {% if stat.avg_rating %}
+                                            {{ "%.2f"|format(stat.avg_rating) }}/5
+                                            {% for i in range(stat.avg_rating|int) %}⭐{% endfor %}
+                                        {% else %}
+                                            <span class="text-muted">No ratings yet</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if stat.avg_rating %}
+                                            <div class="progress" style="width: 150px;">
+                                                <div class="progress-bar {% if stat.avg_rating >= 4 %}bg-success{% elif stat.avg_rating >= 3 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                     style="width: {{ (stat.avg_rating / 5 * 100)|round }}%">
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Options -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-download"></i> Export Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('attendance.export_csv') }}" class="btn btn-success">
+                            <i class="fas fa-file-csv"></i> Export CSV
+                        </a>
+                        <a href="{{ url_for('attendance.export_pdf') }}" class="btn btn-danger">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </a>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">
+                        Download comprehensive reports including workshop details, attendance rates, and feedback statistics.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// Attendance Trends Chart
+fetch('{{ url_for("attendance.get_attendance_trends") }}')
+    .then(response => response.json())
+    .then(data => {
+        const ctx = document.getElementById('attendanceTrendsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(item => item.month),
+                datasets: [
+                    {
+                        label: 'Workshops',
+                        data: data.map(item => item.workshops),
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Attended',
+                        data: data.map(item => item.attended),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+// Category Popularity Chart
+fetch('{{ url_for("attendance.get_category_popularity") }}')
+    .then(response => response.json())
+    .then(data => {
+        const ctx = document.getElementById('categoryPopularityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.map(item => item.category),
+                datasets: [{
+                    data: data.map(item => item.workshops),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+// Rating Distribution Chart
+fetch('{{ url_for("attendance.get_rating_distribution") }}')
+    .then(response => response.json())
+    .then(data => {
+        const ctx = document.getElementById('ratingDistributionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Number of Ratings',
+                    data: data.data,
+                    backgroundColor: [
+                        'rgba(220, 53, 69, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

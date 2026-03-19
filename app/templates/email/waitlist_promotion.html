@@ -1,0 +1,12 @@
+<h3>Great news, {{ user_name }}!</h3>
+<p>A spot has opened up for <strong>{{ workshop.title }}</strong>, and you have been automatically moved from the waitlist to confirmed registration!</p>
+<p><strong>Date & Time:</strong> {{ workshop.date_time.strftime('%B %d, %Y at %I:%M %p') }}</p>
+<p><strong>Location:</strong> {{ workshop.venue_name if workshop.venue_name else 'TBA' }}</p>
+<br>
+<p>
+    <a href="{{ google_calendar_url }}" style="padding: 10px 15px; background-color: #4285F4; color: white; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">Add to Google Calendar</a>
+    <a href="{{ outlook_calendar_url }}" style="padding: 10px 15px; background-color: #0078D4; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Add to Outlook</a>
+</p>
+<br>
+<p>See you there!</p>
+<p>Student Workshop System</p>

@@ -1,0 +1,14 @@
+Workshop Cancelled
+
+Hi {{ user_name }},
+
+We regret to inform you that the following workshop has been cancelled:
+
+{{ workshop.title }}
+Original Date: {{ workshop.date_time.strftime('%A, %B %d, %Y at %I:%M %p') }}
+Venue: {{ workshop.venue_name }}
+
+We apologize for any inconvenience this may cause.
+
+---
+Student Workshop System
